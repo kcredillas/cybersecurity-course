@@ -83,5 +83,10 @@ def main():
 	str1 = ''.join(binKey)
 	print("Key before permute but after parity is: " + str1)
 	# permute()
+	print("Initial permute")
+	for block in binText:
+		block = int(block)
+		block = permute(block, IP_TABLE)
+		
 if __name__ == '__main__':
 	main()
