@@ -10,6 +10,16 @@ IP_TABLE = [58, 50, 42, 34, 26, 18, 10, 2,
 61, 53, 45, 37, 29, 21, 13, 5, 
 63, 55, 47, 39, 31, 23, 15, 7]
 
+#INVERSE PERMUTATION TABLE
+INV_IP_TABLE = [40, 8, 48, 16, 56, 24, 64, 32,
+39, 7, 47, 15, 55, 23, 63, 31,
+38, 6, 46, 14, 54, 22, 62, 30,
+37, 5, 45, 13, 53, 21, 61, 29,
+36, 4, 44, 12, 52, 20, 60, 28,
+35, 3, 43, 11, 51, 19, 59, 27,
+34, 2, 42, 10, 50, 18, 58, 26,
+33, 1, 41, 9, 49, 17, 57, 25]
+
 #KEY GENERATION TABLES
 PC1 = [57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4]
 PC2 = [14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32]
@@ -87,6 +97,9 @@ S_BOX = [
 ]
 
 ]
+
+#P FUNCTION
+PERMUTATION_TABLE = [16,7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25]
 def textprocessing(text):
 	#text = "Today is Tuesday"
 	match = re.split("[^a-zA-Z0-9]", text)
@@ -158,9 +171,27 @@ def functionF(bit32text, bit48key):
 	print("XOR with key:")
 	for i in range(len(s_input)):
 		print(s_input[i])
-	return
+	s_output = s_box(s_input)
+	print("S-box substitution: " +  s_output)
+	p_function = permute(s_output, PERMUTATION_TABLE)
+	print("P-box permutation: " + p_function)
+	output = p_function #32bit output
+	return output
 	#P function
 	#return output
+def s_box(s_input):
+	s_output = list()
+	i=0
+	for str in s_input:
+		first_and_last_bit = str[0]+str[-1]
+		middle_bits = str[1:5]
+		first_and_last_bit = int(first_and_last_bit, 2)
+		middle_bits = int(middle_bits, 2)
+		result = S_BOX[i][first_and_last_bit][middle_bits]
+		s_output.append(bin(result)[2:].zfill(4)) #convert back to bin string
+		i+=1
+	s_output = ''.join(s_output)
+	return s_output
 def XOR(A,B):
 	xor = ""
 	for i in range(len(A)):
@@ -169,6 +200,24 @@ def XOR(A,B):
 		else:
 			xor += '1'
 	return xor
+def cycle(L0, R0, subKeys, i):
+	#R0 == L_n
+	#L0 == R_n
+	if (i == 16):
+		R16 = XOR(L, functionF(R, subKeys[i]))
+		L16 = R
+		preoutput = R16 + L16
+		output = permute(preoutput, INV_IP_TABLE)
+		return output
+	
+	f = functionF(R, subKeys[i])
+	R_i = XOR(L, f)
+	print("R_i-1: " + R_i)
+	print("End of iteration [%d]" %i)
+	return cycle(R_i, L, subKeys, i+=1)
+
+
+
 def main():	
 	#Text preprocessing
 	text = input("What text would you like to encrypt?\r\n")
@@ -218,13 +267,6 @@ def main():
 	print("Initial permutation result:\n%s" % (inputBlock))
 	L0 = inputBlock[:32] #splitting
 	R0 = inputBlock[32:]
-	#f = f(R0, K1) where K is a 48-bit subkey of the master key 
-	#then, X = L0 XOR f 
-	#R0 goes to L1
-	#X goes to R1 
-	#etc
-	F = functionF(R0, roundKeys[0])
-
 		
 if __name__ == '__main__':
 	main()
