@@ -15,6 +15,8 @@ PC1 = [57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52
 PC2 = [14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32]
 SHIFTS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
+#E_BIT_SELECTION TABLE
+E_BIT_SELECTION = [32,1,2,3,4,5,4,5,6,7,8,9,8,9,10,11,12,13,12,13,14,15,16,17,16,17,18,19,20,21,20,21,22,23,24,25,24,25,26,27,28,29,28,29,30,31,32,1] 
 def textprocessing(text):
 	#text = "Today is Tuesday"
 	match = re.split("[^a-zA-Z0-9]", text)
@@ -58,7 +60,10 @@ def leftShift(bits, numberOfLeftShifts):
 	return newBits
 
 def permute(block, table):
-	return [block[i-1] for i in table]
+	permutedBlock = ''
+	for i in table:
+		permutedBlock += block[i-1]
+	return permutedBlock
 def keyGeneration(key):
 	pc1_key = permuteKey(key, PC1)
 	c = pc1_key[:28]
@@ -74,7 +79,22 @@ def keyGeneration(key):
 		d = d_i
 	
 	return subKeys
-
+def functionF(bit32text, bit48key):
+	E = permute(bit32text, E_BIT_SELECTION)
+	R_iminus1 = E
+	s_input = XOR(R_iminus1, bit48key)
+	#SUB BOX
+	#P function
+	#return output
+def XOR(A,B):
+	xor = ""
+	for i in range(len(A)):
+		if A[i] == B[i]:
+			xor += '0'
+		else:
+			xor += '1'
+	return xor
+	
 def main():	
 	#Text preprocessing
 	text = input("What text would you like to encrypt?\r\n")
@@ -89,6 +109,7 @@ def main():
 		if countBytes == (len(binText)/2)-1:
 			print('')
 		countBytes += 1
+	binText = ''.join(binText)
 
 	#Key generation!
 	q = 1
@@ -118,18 +139,17 @@ def main():
 	for i in range(len(roundKeys)):
 		print("Subkey %d is:\n%s" %(i, roundKeys[i]))
 	
-	
-	
+	#DES 1st round
+	inputBlock = permute(binText, IP_TABLE)
+	print("Initial permutation result:\n%s" % (inputBlock))
+	L0 = inputBlock[:32] #splitting
+	R0 = inputBlock[32:]
+	#f = f(R0, K1) where K is a 48-bit subkey of the master key 
+	#then, X = L0 XOR f 
+	#R0 goes to L1
+	#X goes to R1 
+	#etc
 
-
-
-	
-
-	# permute()
-	#print("Initial permute")
-	#for block in binText:
-		#block = int(block)
-		#block = permute(block, IP_TABLE)
 		
 if __name__ == '__main__':
 	main()
