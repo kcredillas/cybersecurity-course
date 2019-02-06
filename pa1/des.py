@@ -10,6 +10,9 @@ IP_TABLE = [58, 50, 42, 34, 26, 18, 10, 2,
 61, 53, 45, 37, 29, 21, 13, 5, 
 63, 55, 47, 39, 31, 23, 15, 7]
 
+PC1 = [57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4]
+
+
 def textprocessing(text):
 	#text = "Today is Tuesday"
 	match = re.split("[^a-zA-Z0-9]", text)
@@ -41,6 +44,12 @@ def getParity(n):
 	if counter % 2 == 0:
 		return 1 #EVEN PARITY
 	return 0 #ODD PARITY 
+
+def permuteKey(masterKey, table):
+	bitkey56 = ''
+	for i in table:
+		bitkey56 += masterKey[i-1]
+	return bitkey56
 
 def permute(block, table):
 	return [block[i-1] for i in table]
@@ -82,11 +91,14 @@ def main():
 		i += 1
 	str1 = ''.join(binKey)
 	print("Key before permute but after parity is: " + str1)
+	permutedKey = permuteKey(str1, PC1)
+	print("Permuted key: " + permutedKey)
+
 	# permute()
-	print("Initial permute")
-	for block in binText:
-		block = int(block)
-		block = permute(block, IP_TABLE)
+	#print("Initial permute")
+	#for block in binText:
+		#block = int(block)
+		#block = permute(block, IP_TABLE)
 		
 if __name__ == '__main__':
 	main()
