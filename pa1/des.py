@@ -228,7 +228,11 @@ def cycle(L_prev, R_prev, subKeys, i = 0):
 
 def main():	
 	#Text preprocessing
-	text = input("What text would you like to encrypt?\r\n")
+	# text = input("What text would you like to encrypt?\r\n")
+	fobj = open("plaintext.txt", 'r')
+	text = fobj.read()
+	print("Text to encrypt: " + text)
+	fobj.close()
 	text = textprocessing(text)
 	binText = ascii2bin(text)
 
@@ -275,8 +279,10 @@ def main():
 	print("Initial permutation result:\n%s" % (inputBlock))
 	L0 = inputBlock[:32] #splitting
 	R0 = inputBlock[32:]
-	cycle(L0, R0, roundKeys)
-
+	output = cycle(L0, R0, roundKeys)
+	fobj = open("binarytext.bin", 'wb')
+	fobj.write(output.encode())
+	fobj.close()
 		
 if __name__ == '__main__':
 	main()
