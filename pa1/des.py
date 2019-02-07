@@ -5,7 +5,7 @@ Assignment: 1
 Date: February 6, 2019
 Github repository link: https://github.com/kcredillas/cybersecurity-course
 
-State: This program only works for encryption.
+State: This program works for both encryption and decryption symmetrically.
 """
 
 import re
@@ -211,6 +211,7 @@ def XOR(A,B):
 			xor += '1'
 	return xor
 def cycle(L_prev, R_prev, subKeys, i = 0):
+	
 	print("\nIteration %d:" %(i+1))
 	#R0 == L_n
 	#L0 == R_n
@@ -233,9 +234,6 @@ def cycle(L_prev, R_prev, subKeys, i = 0):
 	print("XOR with L_i-1 [this is R_i]: " + R_i)
 	print("End of iteration: %d" %(i+1))
 	return cycle(L_i, R_i, subKeys, i+1)
-
-
-
 def main():	
 	#Text preprocessing
 	# text = input("What text would you like to encrypt?\r\n")
@@ -283,15 +281,28 @@ def main():
 	for i in range(len(roundKeys)):
 		print("Subkey %d is:\n%s" %(i, roundKeys[i]))
 	
-	#DES 1st round
 	inputBlock = permute(binText, IP_TABLE)
 	print("Initial permutation result:\n%s" % (inputBlock))
 	L0 = inputBlock[:32] #splitting
 	R0 = inputBlock[32:]
 	output = cycle(L0, R0, roundKeys)
-	fobj = open("binarytext.bin", 'wb')
+	#print("Size of encipher: %d" %len(output))
+	fobj = open("encipher.bin", 'wb')
+	print("Encipher at \"encipher.bin\" file")
 	fobj.write(output.encode())
 	fobj.close()
-		
+	decrypt(output, roundKeys[::-1])	
+def decrypt(input, reverseRoundKeys):
+	print("\nCommencing decipher process...")
+	inputBlock = permute(input, IP_TABLE)
+	print("Initial permutation result:\n%s" % (inputBlock))
+	L0 = inputBlock[:32] #splitting
+	R0 = inputBlock[32:]
+	output = cycle(L0, R0, reverseRoundKeys)
+	output = ''.join(chr(int(output[i:i+8], 2)) for i in range(0, len(output), 8))
+	fobj = open("decipher.txt", 'w')
+	print("Decipher at \"decipher.txt\" file")
+	fobj.write(output)
+	fobj.close()
 if __name__ == '__main__':
 	main()
