@@ -1,3 +1,12 @@
+""" 
+Name: Kenneth Redillas
+Student-ID: 800100241
+Assignment: 1
+Date: February 6, 2019
+
+State: This program only works for encryption.
+"""
+
 import re
 
 #INITIAL PERMUTATION TABLE
