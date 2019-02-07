@@ -115,7 +115,7 @@ def textprocessing(text):
 	processed = ""
 	for word in match:
 		processed += word
-	#print(processed)
+	print("Text to encrypt: " + processed)
 	return processed
 def ascii2bin(s=''):
 	b = []
@@ -240,7 +240,6 @@ def main():
 	# text = input("What text would you like to encrypt?\r\n")
 	fobj = open("plaintext.txt", 'r')
 	text = fobj.read()
-	print("Text to encrypt: " + text)
 	fobj.close()
 	text = textprocessing(text)
 	binText = ascii2bin(text)
