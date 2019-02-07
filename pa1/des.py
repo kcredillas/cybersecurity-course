@@ -109,6 +109,12 @@ S_BOX = [
 
 #P FUNCTION
 PERMUTATION_TABLE = [16,7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25]
+"""
+Function: textprocessing
+Parameters: string text
+Description: Intended for recognizing a string given from plaintext.txt file's contents. The split() method from module re deletes unnecessary character that are not printable ASCII Characters or digits.
+Output: string processed #ready to convert to binary string
+"""
 def textprocessing(text):
 	#text = "Today is Tuesday"
 	match = re.split("[^a-zA-Z0-9]", text)
@@ -117,6 +123,12 @@ def textprocessing(text):
 		processed += word
 	print("Text to encrypt: " + processed)
 	return processed
+"""
+Function: ascii2bin
+Parameters: default string s
+Description: This function converts a given string s to binary into a list of bytes, and appends a padding of zero bytes if the size of s is less than 16 (64 bits).
+Output: list of binary representations of string s  
+"""
 def ascii2bin(s=''):
 	b = []
 	n = len(s)
@@ -130,6 +142,12 @@ def ascii2bin(s=''):
 		
 	b =[bin(ord(x))[2:].zfill(8) for x in s]
 	return b
+"""
+Function: getParity
+Parameters: binary string n
+Description: This function counts how many ones are in the 7-bit binary representation string n. If there are even numbers of ones in n, return 1 for even parity of n. Otherwise, return 0.
+Output: 0 for odd parity OR 1 for even parity
+"""
 def getParity(n):
 	counter = 0
 	for ones in n:
@@ -138,19 +156,44 @@ def getParity(n):
 	if counter % 2 == 0:
 		return 1 #EVEN PARITY
 	return 0 #ODD PARITY 
+"""
+Function: permuteKey
+Parameters: string masterKey, integer list table
+Description: This function intended for compressing the master key into a permuted key.
+Output: string compressedKey 
+"""
 def permuteKey(masterKey, table):
 	compressedKey = ''
 	for i in table:
 		compressedKey += masterKey[i-1]
 	return compressedKey
+"""
+Function: leftShift
+Parameters: string bits, int list numberOfLeftShifts
+Description: For each iteration, left shift the string bits depending upon numberOfLeftShifts. eg. '10001' -> '00101' for 2 leftShifts
+Output: shifted string newBits
+"""
 def leftShift(bits, numberOfLeftShifts):
 	newBits = bits[numberOfLeftShifts:] + bits[:numberOfLeftShifts]
 	return newBits
+
+"""
+Function: permute
+Parameters: binary string block, int list table
+Description: Transposes or permutes the given binary string block according to the given permutation table. 
+Output: permuted binary string
+"""
 def permute(block, table):
 	permutedBlock = ''
 	for i in table:
 		permutedBlock += block[i-1]
 	return permutedBlock
+"""
+Function: keyGeneration
+Parameters: binary string key
+Description: This function generates 16 48-bit keys from the given master key input. 
+Output: subKeys [list of 16 48 bit keys]
+"""
 def keyGeneration(key):
 	pc1_key = permuteKey(key, PC1)
 	c = pc1_key[:28]
@@ -164,8 +207,13 @@ def keyGeneration(key):
 		subKeys.append(roundKey)
 		c = c_i
 		d = d_i
-	
 	return subKeys
+"""
+Function: functionF
+Parameters: bit32text ('R_i-1'), subkey
+Description: Function f represents a Feistel Network function that is a subpart of the DES cycle.
+Output: binary string output ready to be XOR with L_i-1
+"""
 def functionF(bit32text, bit48key):
 	E = permute(bit32text, E_BIT_SELECTION)
 	print("Expansion permutation:\n" + E)
@@ -188,6 +236,12 @@ def functionF(bit32text, bit48key):
 	return output
 	#P function
 	#return output
+"""
+Function: s_box
+Parameters: XOR string with key s_input
+Description: This function represents the S BOX computation by permuting given input to S_BOX table.
+Output: binary string s_output
+"""
 def s_box(s_input):
 	s_output = list()
 	i=0
@@ -201,6 +255,12 @@ def s_box(s_input):
 		i+=1
 	s_output = ''.join(s_output)
 	return s_output
+"""
+Function: XOR
+Parameters: binary string A, binary string B
+Description: This function computes A XOR B by string concatenation.
+Output: xor string
+"""
 def XOR(A,B):
 	xor = ""
 	for i in range(len(A)):
@@ -209,6 +269,12 @@ def XOR(A,B):
 		else:
 			xor += '1'
 	return xor
+"""
+Function: cycle
+Parameters: bin str L_prev, bin str R_prev, 48-bit subKeys, i = 0
+Description: This recursive function is a representation of the DES computation cycle. L_prev = L_i-1 and R_prev = R_i-1, respectively. The base case is when i hits the final iteration cycle, 15 = i ->>> i + 1 = 16th cycle.
+Output: Final permutation 
+"""
 def cycle(L_prev, R_prev, subKeys, i = 0):
 	
 	print("\nIteration %d:" %(i+1))
@@ -233,6 +299,12 @@ def cycle(L_prev, R_prev, subKeys, i = 0):
 	print("XOR with L_i-1 [this is R_i]: " + R_i)
 	print("End of iteration: %d" %(i+1))
 	return cycle(L_i, R_i, subKeys, i+1)
+"""
+Function: main
+parameters: void
+Description: The main function that runs the foundations of the DES algorithm. This function prompts the user for a 64-bit master key to generate the 16 48-bit subkeys, and creates necessary files for both encipher and deciphers depending on the content of the plaintext.txt file. Note: Change the contents of plaintext.txt for different results.
+Output: return
+"""
 def main():	
 	#Text preprocessing
 	# text = input("What text would you like to encrypt?\r\n")
@@ -291,6 +363,12 @@ def main():
 	fobj.write(output.encode())
 	fobj.close()
 	decrypt(output, roundKeys[::-1])	
+"""
+Function: decrypt
+Parameters: input (final permuted output/encipher), reverse ordered roundKeys
+Description: This implementation is the same as the encryption algorithm. Only difference is that this intended for subkeys K16, K15, ..., K1.
+Output: void
+"""
 def decrypt(input, reverseRoundKeys):
 	print("\nCommencing decipher process...")
 	inputBlock = permute(input, IP_TABLE)
