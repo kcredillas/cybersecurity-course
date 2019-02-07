@@ -148,7 +148,7 @@ P-box permutation:
 XOR with L_i-1 (This is R_i):
 01001011101011101100110101011110
 
-End iteration: 2
+End iteration: 2.
 
 
 

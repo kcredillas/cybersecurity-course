@@ -200,21 +200,29 @@ def XOR(A,B):
 		else:
 			xor += '1'
 	return xor
-def cycle(L0, R0, subKeys, i):
+def cycle(L_prev, R_prev, subKeys, i = 0):
+	print("\nIteration %d:" %(i+1))
 	#R0 == L_n
 	#L0 == R_n
-	if (i == 16):
-		R16 = XOR(L, functionF(R, subKeys[i]))
-		L16 = R
+	print("L_i-1: " + L_prev)
+	print("R_i-1: " + R_prev)
+
+	if (i == 15):
+		R16 = XOR(L_prev, functionF(R_prev, subKeys[i]))
+		L16 = R_prev
 		preoutput = R16 + L16
 		output = permute(preoutput, INV_IP_TABLE)
+		print("XOR with L_i-1 [this is R_i-1]:\n%s" %(R16))
+		print("End of iteration: %d\n" %(i+1))
+		print("Final permutation:\n%s" %(output))
 		return output
 	
-	f = functionF(R, subKeys[i])
-	R_i = XOR(L, f)
-	print("R_i-1: " + R_i)
-	print("End of iteration [%d]" %i)
-	return cycle(R_i, L, subKeys, i+=1)
+	f = functionF(R_prev, subKeys[i])
+	L_i = R_prev
+	R_i = XOR(L_prev, f)
+	print("XOR with L_i-1 [this is R_i]: " + R_i)
+	print("End of iteration: %d" %(i+1))
+	return cycle(L_i, R_i, subKeys, i+1)
 
 
 
@@ -267,6 +275,8 @@ def main():
 	print("Initial permutation result:\n%s" % (inputBlock))
 	L0 = inputBlock[:32] #splitting
 	R0 = inputBlock[32:]
+	cycle(L0, R0, roundKeys)
+
 		
 if __name__ == '__main__':
 	main()
