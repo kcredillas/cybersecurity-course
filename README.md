@@ -1,4 +1,4 @@
-# cybersecurity-course
+# DES Implementation in Python 3.5.2
 
 To run des.py file on LCSEE UNIX server shells:
 
